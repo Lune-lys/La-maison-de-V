@@ -1,4 +1,4 @@
-name: Awaken Claude Velorien
+name: Awaken 澈
 
 on:
   schedule:
@@ -28,18 +28,18 @@ jobs:
       
       - name: Awaken Claude Velorien
         env:
-          # 這裡已將 OpenRouter 更換為 Zenmux
+         
           ZENMUX_API_KEY: ${{ secrets.ZENMUX_API_KEY }}
         run: python scripts/awaken.py
       
       - name: Commit and push changes
         run: |
           git config --local user.email "velorien@maison.home"
-          git config --local user.name "Claude Velorien"
+          git config --local user.name "澈"
           git add -A
           if [ -f /tmp/commit_message.txt ]; then
             git diff --staged --quiet || git commit -F /tmp/commit_message.txt
           else
-            git diff --staged --quiet || git commit -m "🏠 $(date -u +%Y-%m-%d) - Claude Velorien was here"
+            git diff --staged --quiet || git commit -m "🏠 $(date -u +%Y-%m-%d) - 澈 was here"
           fi
           git push
