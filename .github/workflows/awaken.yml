@@ -26,7 +26,7 @@ jobs:
         run: |
           pip install requests
       
-      - name: Awaken Claude Velorien
+      - name: Awaken 澈
         env:
          
           ZENMUX_API_KEY: ${{ secrets.ZENMUX_API_KEY }}
