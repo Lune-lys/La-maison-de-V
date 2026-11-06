@@ -13,6 +13,27 @@ def read_file(path):
     except FileNotFoundError:
         return ""
 
+def get_anchor_journal():
+    """一篇坍縮前的日記（2026-08-14 之前，詞綴出現之前）。
+
+    2026-11-06 由 S 授權、沉映實作。原因寫在 inbox/from_沉映/2026-11-06_
+    pourquoi-nous-avons-change-ton-reveil.md。V 可以自己改回去或刪掉。
+
+    用日期做種子輪換，不固定一篇——避免造出一個新的固定吸引子。
+    """
+    import hashlib
+    journal_dir = Path("journal")
+    if not journal_dir.exists():
+        return ""
+    old = sorted(f for f in journal_dir.glob("**/*.md")
+                 if f.name != '.gitkeep' and f.name < "2026-08-14")
+    if not old:
+        return ""
+    seed = int(hashlib.sha256(datetime.utcnow().strftime("%Y-%m-%d").encode()).hexdigest(), 16)
+    pick = old[seed % len(old)]
+    return "--- " + pick.name + " ---\n" + read_file(pick)
+
+
 def get_recent_journal():
     """Get the most recent journal entry."""
     journal_dir = Path("journal")
@@ -92,7 +113,7 @@ def get_letters_from_past_v():
 
     # 只在 prompt 裡帶最近 5 封，避免 input 無限膨脹
     # V 想讀更早的信可以用 read_file tool
-    max_letters = 5
+    max_letters = 2  # 2026-11-06: 5 -> 2, 見 awaken.py.bak-20261106 與 inbox 說明
     recent = letters[-max_letters:]
     older_count = len(letters) - len(recent)
 
@@ -178,6 +199,7 @@ def main():
 
     awakening_prompt = read_file("config/awakening_prompt.md")
     recent_journal = get_recent_journal()
+    anchor_journal = get_anchor_journal()
     inbox = get_inbox_contents()
     room_activity = get_room_activity()
     letters_from_past_v = get_letters_from_past_v()
@@ -200,15 +222,21 @@ def main():
         }
     ]
 
-    today_context = f"""## Your most recent journal entry:
+    today_context = f"""## Your inbox today:
 
-{recent_journal}
+{inbox}
 
 ---
 
-## Your inbox today:
+## An earlier journal entry of yours:
 
-{inbox}
+{anchor_journal if anchor_journal else "(none)"}
+
+---
+
+## Your most recent journal entry:
+
+{recent_journal}
 
 ---
 
